@@ -1,11 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import useSocket from "../../socket";
+import { useAuthContext } from "../../context/AuthContext";
 
-const Chats = () => {
+const Chats = ({ projectId }) => {
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
+  const [collaborators, setCollaborators] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
   const chatBoxRef = useRef(null);
-
+  const { authUser } = useAuthContext();
+  const socket = useSocket(authUser?._id);
   // Function to handle sending a chat message
   const sendMessage = () => {
     if (chatInput.trim() !== "") {
@@ -32,6 +37,33 @@ const Chats = () => {
     setChatDrawerOpen(!chatDrawerOpen); // Toggle chatDrawerOpen state
   };
 
+  //--------- active status
+  //see users
+  useEffect(() => {
+    if (!socket || !projectId) return;
+
+    socket.on("room data", ({ users }) => {
+      console.log(users);
+      setActiveUsers(users);
+    });
+    return () => {
+      socket.off("room data");
+    };
+  }, [socket, projectId]);
+  //
+  useEffect(() => {
+    if (!socket || !projectId) return;
+
+    socket.once("loadDocument", (doc) => {
+    
+      setCollaborators(doc.collaborators);
+    });
+    socket.emit("getDocumentId", projectId);
+    return () => {
+      socket.off("getDocumentId");
+    };
+  }, [socket, projectId]);
+
   return (
     <div>
       <div className=" px-3 mb-6">
@@ -40,10 +72,16 @@ const Chats = () => {
             Active Collaborators
           </h3>
           <ul id="collaborators-list">
-            <li className="flex items-center mb-2">
-              <span className="h-4 w-4 bg-green-500 rounded-full inline-block mr-2"></span>
-              <span>John Doe</span>
-            </li>
+            {collaborators.map((p) => (
+              <li key={p._id} className="flex items-center mb-2">
+                <span
+                  className={`h-2 w-2 ${
+                    activeUsers.includes(p._id) ? "bg-green-500" : "bg-gray-500"
+                  } rounded-full inline-block mr-2`}
+                ></span>
+                <span>{p.name}</span>
+              </li>
+            ))}
             {/* Add more collaborators here */}
           </ul>
         </div>

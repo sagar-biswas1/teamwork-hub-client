@@ -25,13 +25,13 @@ const CollaborativeEditor = () => {
             </div>
 
             {/* Feedback Section */}
-            <Feedbacks />
+            <Feedbacks projectId={projectId}/>
           </div>
 
           {/* Real-Time Collaboration and Chat */}
           <div className="w-full lg:w-1/4 px-3 mb-6">
 
-          <Chats/>
+          <Chats projectId={projectId}/>
           </div>
         </div>
       </div>

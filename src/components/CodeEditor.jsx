@@ -8,34 +8,50 @@ import "ace-builds/src-noconflict/ext-searchbox"; // Optional: enable search box
 import io from "socket.io-client";
 import { debounce } from "lodash";
 import { useParams } from "react-router-dom";
-import socket from "../socket";
-const CodeEditor = ({projectId}) => {
-  
-  console.log(projectId)
-//   const [socket, setSocket] = useState(null);
+// import socket from "../socket";
+import { useAuthContext } from "../context/AuthContext";
+import useSocket from "../socket";
+
+const CodeEditor = ({ projectId }) => {
+  const { authUser } = useAuthContext();
+  const socket = useSocket(authUser?._id);
+  //   const [socket, setSocket] = useState(null);
   const [code, setCode] = useState("loading codes...");
   const [cursors, setCursors] = useState({});
   const [isReadOnlyEditor, setIsReadOnlyEditor] = useState(true);
+  const [content, setContent] = useState({});
   // my socket code
   const debouncedEmit = useCallback(
-    debounce((projectId, code) => {
+    debounce(({ projectId, code, userId, creatorId }) => {
       if (!socket) return;
-      socket.emit("documentEdited", { roomId:projectId, code });
-    }, 500), // Adjust the debounce delay (in milliseconds) as needed
+  
+      const payLoad = { projectId, code };
+      if (userId !== creatorId) {
+        payLoad.collaborators = [userId];
+      }
+      
+      socket.emit("documentEdited", payLoad);
+    }, 1000), // Adjust the debounce delay (in milliseconds) as needed
     [socket]
   );
 
-//   useEffect(() => {
-//     const skt = io(import.meta.env.VITE_SOCKET_ENDPOINT);
-//     setSocket(skt);
-//     return () => {
-//       skt.disconnect();
-//     };
-//   }, []);
-
+  //   useEffect(() => {
+  //     const skt = io(import.meta.env.VITE_SOCKET_ENDPOINT);
+  //     setSocket(skt);
+  //     return () => {
+  //       skt.disconnect();
+  //     };
+  //   }, []);
+  
   useEffect(() => {
     if (!socket) return;
-    debouncedEmit(projectId, code);
+
+    debouncedEmit({
+      projectId,
+      code,
+      userId: authUser?._id,
+      creatorId: content?.createdBy?._id,
+    });
 
     // Cleanup function to cancel any pending debounced calls if component unmounts or dependencies change
     return () => {
@@ -44,8 +60,9 @@ const CodeEditor = ({projectId}) => {
   }, [socket, code, projectId, debouncedEmit]);
   useEffect(() => {
     if (!socket) return;
-    socket.on("documentUpdated", ({ projectId, code }) => {
+    socket.on("documentUpdated", ({ projectId, code, collaborators }) => {
       setCode(code);
+      // setContent({ ...content, collaborators });
     });
   }, [socket, projectId]);
 
@@ -53,12 +70,13 @@ const CodeEditor = ({projectId}) => {
     if (!socket || !projectId) return;
 
     socket.once("loadDocument", (doc) => {
-      setCode(doc);
+      setContent(doc);
+      setCode(doc.body);
       setIsReadOnlyEditor(false);
     });
     socket.emit("getDocumentId", projectId);
     return () => {
-        socket.off('getDocumentId');
+      socket.off("getDocumentId");
     };
   }, [socket, projectId]);
 
@@ -66,19 +84,18 @@ const CodeEditor = ({projectId}) => {
     setCode(newCode);
   };
 
+  // //see users
+  // useEffect(() => {
+  //   if (!socket || !projectId) return;
 
-  //see users
-  useEffect(()=>{
-    if (!socket ||!projectId) return;
-
-    socket.on('room data',(user)=>{
-        console.log(user)
-    })
-    return () => {
-        socket.emit('leave room', projectId);
-        socket.off('room data');
-    };
-  },[socket,projectId])
+  //   socket.on("room data", (user) => {
+  //     console.log(user);
+  //     console.log(content)
+  //   });
+  //   return () => {
+  //     socket.off("room data");
+  //   };
+  // }, [socket, projectId]);
   //---------
   //   const debouncedEmit = useCallback(
   //     debounce((contentID, content) => {
@@ -161,7 +178,7 @@ const CodeEditor = ({projectId}) => {
       row: selection.getCursor().row,
       column: selection.getCursor().column,
     };
-    console.log(cursorPosition);
+    // console.log(cursorPosition);
     // socket.emit('updateCursor', { projectId, userId, cursorPosition });
   };
 
@@ -182,7 +199,7 @@ const CodeEditor = ({projectId}) => {
         height="500px"
         setOptions={{
           enableBasicAutocompletion: true,
-          enableLiveAutocompletion: true,
+          // enableLiveAutocompletion: true,
           //   enableSnippets: true,
           showLineNumbers: true,
           tabSize: 1,

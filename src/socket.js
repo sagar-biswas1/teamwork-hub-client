@@ -1,11 +1,27 @@
-// client/src/socket.js
 
-import io from "socket.io-client";
-console.log(import.meta.env.VITE_SOCKET_ENDPOINT);
-const socket = io(import.meta.env.VITE_SOCKET_ENDPOINT,{
-    query: {
-        userId: "1234",
-    },
-});
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+import { useAuthContext } from './context/AuthContext';
 
-export default socket;
+const useSocket = (userId) => {
+  const [socket, setSocket] = useState(null);
+ 
+  useEffect(() => {
+    // Initialize the socket connection
+    const newSocket = io(import.meta.env.VITE_SOCKET_ENDPOINT, {
+      query: { userId },
+    });
+    
+    setSocket(newSocket);
+
+    // Cleanup on component unmount
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [userId]);
+
+  return socket;
+};
+
+export default useSocket;
+
