@@ -33,7 +33,7 @@ const Feedbacks = () => {
         >
           {/* Example Feedback */}
           {feedbackContent.map((feedback, index) => (
-            <FeedbackCard />
+            <FeedbackCard key={index} />
           ))}
         </div>
         {/* Add Feedback Button */}

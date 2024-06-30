@@ -8,58 +8,122 @@ import "ace-builds/src-noconflict/ext-searchbox"; // Optional: enable search box
 import io from "socket.io-client";
 import { debounce } from "lodash";
 import { useParams } from "react-router-dom";
-const CodeEditor = ({ userId }) => {
-  const { id: projectId } = useParams();
-  const [socket, setSocket] = useState(null);
+import socket from "../socket";
+const CodeEditor = ({}) => {
+  const projectId = "kdljasdklas";
+//   const [socket, setSocket] = useState(null);
   const [code, setCode] = useState("loading codes...");
   const [cursors, setCursors] = useState({});
-  const [isReadOnlyEditor, setIsReadOnlyEditor] = useState(false);
+  const [isReadOnlyEditor, setIsReadOnlyEditor] = useState(true);
   // my socket code
-//   const debouncedEmit = useCallback(
-//     debounce((projectId, code) => {
-//       if (!socket) return;
-//       socket.emit("codeEdited", { projectId, code });
-//     }, 500), // Adjust the debounce delay (in milliseconds) as needed
-//     [socket]
-//   );
+  const debouncedEmit = useCallback(
+    debounce((projectId, code) => {
+      if (!socket) return;
+      socket.emit("documentEdited", { roomId:projectId, code });
+    }, 500), // Adjust the debounce delay (in milliseconds) as needed
+    [socket]
+  );
 
 //   useEffect(() => {
-//     const skt = io("http://localhost:3000");
+//     const skt = io(import.meta.env.VITE_SOCKET_ENDPOINT);
 //     setSocket(skt);
 //     return () => {
 //       skt.disconnect();
 //     };
 //   }, []);
 
-//   useEffect(() => {
-//     if (!socket) return;
-//     debouncedEmit(projectId, code);
+  useEffect(() => {
+    if (!socket) return;
+    debouncedEmit(projectId, code);
 
-//     // Cleanup function to cancel any pending debounced calls if component unmounts or dependencies change
-//     return () => {
-//       debouncedEmit.cancel();
-//     };
-//   }, [socket, code, projectId, debouncedEmit]);
-//   useEffect(() => {
-//     if (!socket) return;
-//     socket.on("codeUpdated", ({ projectId, code }) => {
-//       setCode(code);
-//     });
-//   }, [socket, projectId]);
+    // Cleanup function to cancel any pending debounced calls if component unmounts or dependencies change
+    return () => {
+      debouncedEmit.cancel();
+    };
+  }, [socket, code, projectId, debouncedEmit]);
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("documentUpdated", ({ projectId, code }) => {
+      setCode(code);
+    });
+  }, [socket, projectId]);
 
-//   useEffect(() => {
-//     if (!socket || !projectId) return;
+  useEffect(() => {
+    if (!socket || !projectId) return;
 
-//     socket.once("loadDocument", (doc) => {
-//       setCode(doc);
-//       setIsReadOnlyEditor(false);
-//     });
-//     socket.emit("getDocumentId", projectId);
-//   }, [socket, projectId]);
+    socket.once("loadDocument", (doc) => {
+      setCode(doc);
+      setIsReadOnlyEditor(false);
+    });
+    socket.emit("getDocumentId", projectId);
+    return () => {
+        socket.off('getDocumentId');
+    };
+  }, [socket, projectId]);
 
   const handleCodeChange = (newCode) => {
     setCode(newCode);
   };
+
+
+  //see users
+  useEffect(()=>{
+    if (!socket ||!projectId) return;
+
+    socket.on('room data',(user)=>{
+        console.log(user)
+    })
+    return () => {
+        socket.emit('leave room', projectId);
+        socket.off('room data');
+    };
+  },[socket,projectId])
+  //---------
+  //   const debouncedEmit = useCallback(
+  //     debounce((contentID, content) => {
+  //       if (!skt) return;
+  //       skt.emit("contentEdited", { contentID, content });
+  //     }, 800), // Adjust the debounce delay (in milliseconds) as needed
+  //     [skt]
+  //   );
+
+  //   useEffect(() => {
+  //     setSkt(socket);
+  //     console.log(socket)
+  //     // return () => {
+  //     //   skt.disconnect();
+  //     // };
+  //   }, [socket]);
+
+  //   useEffect(() => {
+  //     if (!skt) return;
+  //     debouncedEmit(contentID, content);
+
+  //     // Cleanup function to cancel any pending debounced calls if component unmounts or dependencies change
+  //     return () => {
+  //       debouncedEmit.cancel();
+  //     };
+  //   }, [skt, content, contentID, debouncedEmit]);
+  //   useEffect(() => {
+  //     if (!skt) return;
+  //     skt.on("contentUpdated", ({ contentID, code }) => {
+  //       setContent(code);
+  //     });
+  //   }, [skt, contentID]);
+
+  //   useEffect(() => {
+  //     if (!skt || !contentID) return;
+
+  //     skt.once("loadContent", (doc) => {
+  //       setContent(doc);
+  //       setIsReadOnlyEditor(false);
+  //     });
+  //     skt.emit("getContentID", contentID);
+  //   }, [skt, contentID]);
+
+  //   const handleCodeChange = (newContent) => {
+  //     setContent(newContent);
+  //   };
 
   // end of my socket code
 
