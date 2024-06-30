@@ -2,9 +2,10 @@ import React, { useRef, useState } from "react";
 import CodeEditor from "../components/CodeEditor";
 import Feedbacks from "../components/Feedbacks/Feedbacks";
 import Chats from "../components/Chats/Chats";
+import { useParams } from "react-router-dom";
 
 const CollaborativeEditor = () => {
- 
+  const {projectId}= useParams()
 
   return (
     <div className="bg-gray-100">
@@ -19,7 +20,7 @@ const CollaborativeEditor = () => {
                 Edit Document
               </h2>
               <div className="editor-container" id="editor">
-                <CodeEditor />
+                <CodeEditor projectId={projectId}/>
               </div>
             </div>
 

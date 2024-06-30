@@ -9,8 +9,9 @@ import io from "socket.io-client";
 import { debounce } from "lodash";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
-const CodeEditor = ({}) => {
-  const projectId = "kdljasdklas";
+const CodeEditor = ({projectId}) => {
+  
+  console.log(projectId)
 //   const [socket, setSocket] = useState(null);
   const [code, setCode] = useState("loading codes...");
   const [cursors, setCursors] = useState({});

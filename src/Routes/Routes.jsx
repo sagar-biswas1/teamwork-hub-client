@@ -17,7 +17,7 @@ import Main from "../layout/Main";
         { path: "/", element: <Home></Home> },
         { path: "/login", element: <Login></Login> },
         { path: "/signup", element: <Registration></Registration> },
-        { path: "/collaborate/:contentID", element: <CollaborativeEditor></CollaborativeEditor> },
+        { path: "/collaborate/:projectId", element: <CollaborativeEditor></CollaborativeEditor> },
         { path: "/*", element: <NotFound></NotFound> }
       ]
     

@@ -33,7 +33,7 @@ const CustomModal = ({ isOpen, onRequestClose, title, children }) => {
       onAfterOpen={afterOpenModal}
       onRequestClose={onRequestClose}
       style={customStyles}
-      contentLabel="Custom Modal"
+      contentLabel="It takes courage to grow up and become who you really are."
     >
       <h2 ref={(_subtitle) => (subtitle = _subtitle)} className="text-xl font-bold mb-4">
         {title}
