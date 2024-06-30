@@ -25,6 +25,7 @@ const Home = () => {
       {/* modal render */}
       <div className="fixed bottom-14 right-14">
         <button
+        title="Add a new project"
           onClick={openModal}
           className="font-black text-2xl bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
