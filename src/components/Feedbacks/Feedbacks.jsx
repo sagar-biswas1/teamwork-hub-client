@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import CustomModal from "../CustomModal";
 import FeedbackCard from "./FeedbackCard";
+import { useCreateFeedback, useGetFeedback } from "../../api/feedbackApi";
+import { useAuthContext } from "../../context/AuthContext";
 
-const Feedbacks = () => {
+const Feedbacks = ({projectId}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [feedbackContent, setFeedbackContent] = useState([9, 3]);
+ 
+  const { authUser } = useAuthContext();
+  const [feedback, setFeedback] = useState("");
+
+  const { mutate } = useCreateFeedback();
+  const { data:feedbacks, error, isLoading } = useGetFeedback(projectId);
 
   // Function to handle opening the modal
   const openModal = () => {
@@ -17,23 +24,39 @@ const Feedbacks = () => {
   };
 
   // Function to handle submitting feedback
-  const submitFeedback = (e) => {
+  const submitFeedback =  (e) => {
     e.preventDefault();
-    console.log(e.target.feedback.value);
-    setFeedbackContent([...feedbackContent, e.target.feedback.value]);
-    closeModal();
+
+    try {
+      const feedbackText = e.target.feedback.value;
+
+       mutate({ contentId:projectId, feedbackData: { feedbackText,content:projectId,
+        user:authUser?._id
+        } });
+      
+      closeModal();
+    } catch (error) {
+      console.error("Error creating feedback:", error);
+      // Optionally handle error actions
+    }
   };
+
+  
+  if (isLoading) return <div>Loading feedback...</div>;
+  if (error) return <div>Error loading feedback: {error.message}</div>;
+
+
   return (
     <div>
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <h3 className="text-lg font-bold text-gray-800 mb-4">Feedback</h3>
         <div
           id="feedback-list"
-          className="overflow-y-auto h-80 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="z-30 overflow-y-auto h-80 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {/* Example Feedback */}
-          {feedbackContent.map((feedback, index) => (
-            <FeedbackCard key={index} />
+          {feedbacks.feedback.map((c, index) => (
+            <FeedbackCard key={index} feedback={c} />
           ))}
         </div>
         {/* Add Feedback Button */}
@@ -54,8 +77,6 @@ const Feedbacks = () => {
         <form className="space-y-4" onSubmit={submitFeedback}>
           <textarea
             className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-indigo-500"
-            // value={feedbackContent}
-            // onChange={(e) => setFeedbackContent(e.target.value)}
             name="feedback"
             placeholder="Your feedback"
             rows="4"

@@ -84,3 +84,7 @@ button[title]:hover::after {
 ::-webkit-scrollbar-thumb:hover {
   background: #645cfa;
 }
+
+.ReactModalPortal{
+  z-index: 10000;
+}

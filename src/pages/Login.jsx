@@ -1,11 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLoginUser } from "../api/authApi";
+import { axiosInstancePublic } from "../api/axiosConfig";
+import { useAuthContext } from "../context/AuthContext";
 
 const Login = () => {
-  const { mutate } = useLoginUser();
-
-  const handleLogin = (e) => {
+  const loginMutation = useLoginUser();
+  const navigate = useNavigate();
+  const { authUser, setAuthUser, isLoading } = useAuthContext();
+  const handleLogin = async (e) => {
     e.preventDefault();
     const formData = e.target;
     const email = formData.email.value;
@@ -13,9 +16,23 @@ const Login = () => {
     // Reset form fields
     formData.email.value = "";
     formData.password.value = "";
-    mutate({ email, password });
-  };
+    const accessToken = await loginMutation.mutateAsync({ email, password });
 
+    localStorage.setItem("authToken", accessToken.accessToken);
+    if (accessToken) {
+      // Make request to backend API to verify token using Axios
+      const response = await axiosInstancePublic.post(
+        "/v1/auth/verify-token",
+        accessToken
+      );
+
+      if (response.status === 200) {
+        const userData = response.data.user;
+        setAuthUser(userData);
+        navigate("/");
+      }
+    }
+  };
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 w-full max-w-md mx-4 sm:mx-0">

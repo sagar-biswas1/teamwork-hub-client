@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // Base Axios instance for public APIs
 export const axiosInstancePublic = axios.create({
@@ -41,7 +42,7 @@ axiosInstancePrivate.interceptors.response.use(
     // for 401 or 403 remove the user token and move the user to the login
     if (status === 401 || status === 403) {
       localStorage.removeItem("authToken");
-      navigate("/login");
+
     }
     return Promise.reject(error);
   }

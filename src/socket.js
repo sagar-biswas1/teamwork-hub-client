@@ -10,6 +10,9 @@ const useSocket = (userId) => {
     // Initialize the socket connection
     const newSocket = io(import.meta.env.VITE_SOCKET_ENDPOINT, {
       query: { userId },
+      reconnection: true, // Enable reconnection
+      reconnectionAttempts: 5, // Number of attempts before giving up
+      timeout: 10000, // Connection timeout
     });
     
     setSocket(newSocket);

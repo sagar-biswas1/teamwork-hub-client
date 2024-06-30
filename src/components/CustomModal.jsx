@@ -28,7 +28,8 @@ const CustomModal = ({ isOpen, onRequestClose, title, children }) => {
   }
 
   return (
-    <Modal
+    <div className='z-100'>
+      <Modal
       isOpen={isOpen}
       onAfterOpen={afterOpenModal}
       onRequestClose={onRequestClose}
@@ -45,6 +46,7 @@ const CustomModal = ({ isOpen, onRequestClose, title, children }) => {
         {children}
       </div>
     </Modal>
+    </div>
   );
 };
 
