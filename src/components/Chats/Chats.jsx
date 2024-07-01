@@ -13,7 +13,7 @@ const Chats = ({ projectId }) => {
   const socket = useSocket(authUser?._id);
   const [message, setMessage] = useState(null);
   // Function to handle sending a chat message
-  console.log(collaborators);
+
   const sendMessage = () => {
     if (chatInput.trim() !== "") {
       const newMessage = {
@@ -53,7 +53,7 @@ const Chats = ({ projectId }) => {
       socket.off("receiveMessage");
     };
   }, [socket, setChatMessages]);
-  console.log(chatMessages);
+
   // Function to toggle chat drawer
   const toggleChatDrawer = () => {
     setChatDrawerOpen(!chatDrawerOpen); // Toggle chatDrawerOpen state
@@ -63,7 +63,6 @@ const Chats = ({ projectId }) => {
     if (!socket || !projectId) return;
 
     socket.on("room data", ({ users }) => {
-      console.log(users);
       setActiveUsers(users);
     });
     return () => {

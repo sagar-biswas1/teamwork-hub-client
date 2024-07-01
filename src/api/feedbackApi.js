@@ -19,13 +19,13 @@ export const useCreateFeedback = () => {
   return useMutation({
     mutationFn: createFeedback,
     onSuccess: (data) => {
-      console.log("Feedback created successfully:", data);
+     
       queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
-      // Optionally handle success actions like showing a success message or navigating
+      
     },
     onError: (error) => {
       console.error("Error creating feedback:", error);
-      // Optionally handle error actions like showing an error message
+     
     },
   });
 };
@@ -47,13 +47,12 @@ export const useGetFeedback = (contentID) => {
     queryKey: ["feedbacks", contentID],
     queryFn: () => getFeedbacksByContentId(contentID),
     onSuccess: (data) => {
-      console.log("Feedback fetched successfully:", data);
+     
 
-      // Optionally handle success actions like updating state or UI
     },
     onError: (error) => {
       console.error("Error fetching feedback:", error);
-      // Optionally handle error actions like displaying error messages
+     
     },
   });
 };

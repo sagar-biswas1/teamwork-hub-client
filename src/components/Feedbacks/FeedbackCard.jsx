@@ -28,7 +28,6 @@ const FeedbackCard = ({ feedback }) => {
     e.preventDefault();
     try {
       const feedbackText = e.target.feedback.value;
-      console.log(feedbackText);
       updateFeedbackMutation.mutate({
         id: _id,
         feedbackText,

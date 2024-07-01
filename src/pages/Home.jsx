@@ -9,7 +9,7 @@ const Home = () => {
   const { authUser } = useAuthContext();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const { data, isLoading, isError } = useFetchContent({ page, limit });
+  const { data, isLoading } = useFetchContent({ page, limit });
 
   const { mutate } = useCreateContent();
   const { mutate:deleteHandler } = useDeleteContent();
@@ -18,13 +18,11 @@ const Home = () => {
     deleteHandler(contentId); // Trigger delete operation with contentId
   };
 
-  console.log(isLoading, isError);
   const handleFromSubmit = async (e) => {
     e.preventDefault();
     try {
       const title = e.target.title.value;
       const data = mutate({ title, createdBy: authUser._id });
-      console.log(data);
     } catch (error) {
       console.error("Error creating project content:", error);
     } finally {
