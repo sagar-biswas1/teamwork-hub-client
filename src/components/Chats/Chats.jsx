@@ -11,27 +11,48 @@ const Chats = ({ projectId }) => {
   const chatBoxRef = useRef(null);
   const { authUser } = useAuthContext();
   const socket = useSocket(authUser?._id);
+  const [message, setMessage] = useState(null);
   // Function to handle sending a chat message
   const sendMessage = () => {
     if (chatInput.trim() !== "") {
       const newMessage = {
         content: chatInput,
-        sender: "You", // Assuming user's own message for example
+        sender: authUser._id,
+        senderName: authUser.name,
         timestamp: new Date().toLocaleString(),
       };
-      setChatMessages([...chatMessages, newMessage]);
+      setMessage({
+        chatRoomId: projectId,
+        message: newMessage,
+      });
       setChatInput("");
       if (chatBoxRef.current) {
-        // Optionally, scroll to bottom of chat box
-        console.log(
-          chatBoxRef.current.scrollTop,
-          chatBoxRef.current.scrollHeight
-        );
         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight + 1000;
       }
     }
   };
 
+  useEffect(() => {
+    if (!socket || !message) return;
+    socket.emit("deliverMessage", {
+      chatRoomId: projectId,
+      message,
+    });
+  }, [socket, message]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("receiveMessage", ({ message }) => {
+      setChatMessages((prevMessages) => [...prevMessages, message.message]);
+    });
+
+    // Clean up the effect
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, [socket, setChatMessages]);
+  console.log(chatMessages);
   // Function to toggle chat drawer
   const toggleChatDrawer = () => {
     setChatDrawerOpen(!chatDrawerOpen); // Toggle chatDrawerOpen state
@@ -55,7 +76,6 @@ const Chats = ({ projectId }) => {
     if (!socket || !projectId) return;
 
     socket.once("loadDocument", (doc) => {
-    
       setCollaborators(doc.collaborators);
     });
     socket.emit("getDocumentId", projectId);
@@ -136,12 +156,15 @@ const Chats = ({ projectId }) => {
             <div
               key={index}
               className={`chat-bubble ${
-                message.sender === "You"
+                message.sender === authUser?._id
                   ? "chat-bubble-right"
                   : "chat-bubble-left"
-              } p-2 rounded-lg mb-2`}
+              } p-2 rounded-lg mb-2 relative`}
               style={{ wordWrap: "break-word", overflowWrap: "break-word" }}
             >
+              <span className="absolute rounded-md  -top-2 -left-2 text-xs text-white-500  bg-blue-500 p-1">
+                {message.sender === authUser?._id ? "you" : message.senderName}
+              </span>
               <span>{message.content}</span>
             </div>
           ))}
