@@ -59,8 +59,6 @@ const Chats = ({ projectId }) => {
     setChatDrawerOpen(!chatDrawerOpen); // Toggle chatDrawerOpen state
   };
 
-  //--------- active status
-  //see users
   useEffect(() => {
     if (!socket || !projectId) return;
 
