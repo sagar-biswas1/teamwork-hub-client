@@ -8,7 +8,7 @@ const Feedbacks = ({projectId}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
  
   const { authUser } = useAuthContext();
-  const [feedback, setFeedback] = useState("");
+
 
   const { mutate } = useCreateFeedback();
   const { data:feedbacks, error, isLoading } = useGetFeedback(projectId);
@@ -37,7 +37,7 @@ const Feedbacks = ({projectId}) => {
       closeModal();
     } catch (error) {
       console.error("Error creating feedback:", error);
-      // Optionally handle error actions
+     
     }
   };
 

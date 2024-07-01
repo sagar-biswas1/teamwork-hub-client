@@ -2,14 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 
-const ContentCard = ({ content,handleDelete }) => {
-  const{ body, collaborators,createdBy, updatedAt, title, _id }=content||{}
+const ContentCard = ({ content, handleDelete }) => {
+  const { body, collaborators, createdBy, updatedAt, title, _id } =
+    content || {};
   const { authUser } = useAuthContext();
- 
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
       <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
-      <p className="text-gray-600 mb-4">{collaborators?.length} collaborators</p>
+      <p className="text-gray-600 mb-4">
+        {collaborators?.length} collaborators
+      </p>
       <div className="flex justify-between items-center">
         <Link
           to={`/collaborate/${_id}`}
@@ -19,7 +22,14 @@ const ContentCard = ({ content,handleDelete }) => {
             Collaborate
           </span>
         </Link>
-     {(authUser._id === createdBy._id) &&    <button onClick={()=>handleDelete(_id)}className="text-red-600 hover:text-red-700">Delete</button> }
+        {authUser._id === createdBy._id && (
+          <button
+            onClick={() => handleDelete(_id)}
+            className="text-red-600 hover:text-red-700"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );

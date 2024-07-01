@@ -13,6 +13,7 @@ const Chats = ({ projectId }) => {
   const socket = useSocket(authUser?._id);
   const [message, setMessage] = useState(null);
   // Function to handle sending a chat message
+  console.log(collaborators);
   const sendMessage = () => {
     if (chatInput.trim() !== "") {
       const newMessage = {
@@ -92,16 +93,21 @@ const Chats = ({ projectId }) => {
             Active Collaborators
           </h3>
           <ul id="collaborators-list">
-            {collaborators.map((p) => (
-              <li key={p._id} className="flex items-center mb-2">
-                <span
-                  className={`h-2 w-2 ${
-                    activeUsers.includes(p._id) ? "bg-green-500" : "bg-gray-500"
-                  } rounded-full inline-block mr-2`}
-                ></span>
-                <span>{p.name}</span>
-              </li>
-            ))}
+            {collaborators.map(
+              (p) =>
+                p?.name && (
+                  <li key={p._id} className="flex items-center mb-2">
+                    <span
+                      className={`h-2 w-2 ${
+                        activeUsers.includes(p._id)
+                          ? "bg-green-500"
+                          : "bg-gray-500"
+                      } rounded-full inline-block mr-2`}
+                    ></span>
+                    <span>{p.name}</span>
+                  </li>
+                )
+            )}
             {/* Add more collaborators here */}
           </ul>
         </div>
@@ -119,7 +125,7 @@ const Chats = ({ projectId }) => {
       {/* Chat Drawer */}
       <div
         id="chat-drawer"
-        className={`fixed inset-y-0 right-0 w-3/4 md:w-1/3 lg:w-1/4 bg-white shadow-lg overflow-y-scroll chat-drawer p-6 ${
+        className={`fixed z-[10000] inset-y-0 right-0 w-3/4 md:w-1/3 lg:w-1/4 bg-white shadow-lg overflow-y-scroll chat-drawer p-6 ${
           chatDrawerOpen ? "open" : ""
         }`}
       >

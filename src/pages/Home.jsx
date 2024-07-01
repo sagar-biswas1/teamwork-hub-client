@@ -90,7 +90,7 @@ const Home = () => {
           </div>
         </form>
       </CustomModal>
-      {/* --------------- */}
+      
     </div>
   );
 };
